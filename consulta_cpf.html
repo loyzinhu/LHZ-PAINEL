@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Consulta CPF</title>
+    <style>
+        body {
+            background-color: #000;
+            color: #ff5252;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 36px;
+            margin-top: 50px;
+        }
+
+        #formCPF {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            margin-top: 30px;
+        }
+
+        label {
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        #cpfInput {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        input[type="button"] {
+            background-color: #ff5252;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="button"]:hover {
+            background-color: #cc0000;
+        }
+
+        #resultadoCPF {
+            background-color: #222;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 30px;
+            white-space: pre-wrap;
+            font-size: 16px;
+            overflow: auto;
+            max-height: 300px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Consulta CPF</h1>
+    <form id="formCPF">
+        <label for="cpfInput">Digite o CPF:</label>
+        <input type="text" id="cpfInput" placeholder="Ex: 12345678">
+        <input type="button" value="Consultar" onclick="consultarCPF()">
+        <input type="button" value="Salvar" onclick="salvarConsulta()">
+    </form>
+    <pre id="resultadoCPF"></pre>
+
+    <script>
+        let tentativas = 0;
+        const MAX_TENTATIVAS = 3;
+
+        function consultarAPI(url) {
+            const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+
+            const requisicao = new XMLHttpRequest();
+            requisicao.open('GET', proxyUrl + url, true);
+
+            requisicao.onload = function () {
+                console.log('Resposta da API:', requisicao.responseText);
+                if (requisicao.status === 200) {
+                    try {
+                        const respostaApi = JSON.parse(requisicao.responseText);
+                        console.log('Dados da API:', respostaApi);
+                        if (respostaApi && respostaApi.data && respostaApi.data[0]) {
+                            const dados = respostaApi.data[0];
+                            const resultadoFormatado = `
+Informações pessoais:
+Nome: ${dados.Nome}
+CPF: ${dados.CPF}
+
+Endereço:
+Endereço: ${dados.Endereco}
+Número: ${dados.Numero}
+Complemento: ${dados.Complemento}
+Bairro: ${dados.Bairro}
+CEP: ${dados.CEP}
+Cidade: ${dados.Cidade}
+Estado: ${dados.Estado}
+
+Contato:
+DDD: ${dados.DDD}
+Telefone: ${dados.Telefone}
+                            `;
+                            document.getElementById('resultadoCPF').innerText = resultadoFormatado;
+                        } else {
+                            document.getElementById('resultadoCPF').innerText = 'Nenhum dado encontrado.';
+                        }
+                    } catch (e) {
+                        console.error('Erro ao analisar JSON:', e);
+                        document.getElementById('resultadoCPF').innerText = 'Erro ao analisar resposta da API.';
+                    }
+                } else {
+                    console.error('Erro na API:', requisicao.statusText);
+                    document.getElementById('resultadoCPF').innerText = 'Erro na consulta à API.';
+                }
+            };
+
+            requisicao.onerror = function () {
+                console.error('Erro na requisição');
+                document.getElementById('resultadoCPF').innerText = 'Erro na requisição.';
+            };
+
+            requisicao.send();
+        }
+
+        function consultarCPF() {
+            const cpf = document.getElementById('cpfInput').value;
+            if (!cpf) {
+                alert('CPF inválido');
+                return;
+            }
+
+            tentativas++;
+            if (tentativas <= MAX_TENTATIVAS) {
+                const apiUrl = `https://x-search.xyz/apis/x-slayer/02/cpf.php?cpf=${cpf}`;
+                consultarAPI(apiUrl);
+            } else {
+                document.getElementById('resultadoCPF').innerText = 'Limite de tentativas excedido. Tente novamente mais tarde.';
+            }
+        }
+
+        function salvarConsulta() {
+            const resultado = document.getElementById('resultadoCPF').innerText;
+            const blob = new Blob([resultado], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = 'consulta_cpf.txt';
+            link.click();
+        }
+    </script>
+</body>
+
+</html>

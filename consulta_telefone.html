@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Consulta Telefone</title>
+    <style>
+        body {
+            background-color: #000;
+            color: #ff5252;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 36px;
+            margin-top: 50px;
+        }
+
+        #formTelefone {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            margin-top: 30px;
+        }
+
+        label {
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        #dddInput, #telefoneInput {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        input[type="button"] {
+            background-color: #ff5252;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="button"]:hover {
+            background-color: #cc0000;
+        }
+
+        #resultadoTelefone {
+            background-color: #222;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 30px;
+            white-space: pre-wrap;
+            font-size: 16px;
+            overflow: auto;
+            max-height: 300px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Consulta Telefone</h1>
+    <form id="formTelefone">
+        <label for="dddInput">Digite o DDD:</label>
+        <input type="text" id="dddInput" placeholder="Ex: 11">
+        <label for="telefoneInput">Digite o Telefone:</label>
+        <input type="text" id="telefoneInput" placeholder="Ex: 987654321">
+        <input type="button" value="Consultar" onclick="consultarTelefone()">
+        <input type="button" value="Salvar" onclick="salvarConsulta()">
+    </form>
+    <pre id="resultadoTelefone"></pre>
+
+    <script>
+        let tentativas = 0;
+        const MAX_TENTATIVAS = 3;
+
+        function consultarAPI(url) {
+            const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+
+            const requisicao = new XMLHttpRequest();
+            requisicao.open('GET', proxyUrl + url, true);
+
+            requisicao.onload = function () {
+                console.log('Resposta da API:', requisicao.responseText);
+                if (requisicao.status === 200) {
+                    try {
+                        const respostaApi = JSON.parse(requisicao.responseText);
+                        console.log('Dados da API:', respostaApi);
+                        if (respostaApi && respostaApi.data && respostaApi.data[0]) {
+                            const dados = respostaApi.data[0];
+                            const resultadoFormatado = `
+Informações pessoais:
+Nome: ${dados.Nome}
+CPF: ${dados.CPF}
+
+Endereço:
+Endereço: ${dados.Endereco}
+Número: ${dados.Numero}
+Complemento: ${dados.Complemento}
+Bairro: ${dados.Bairro}
+CEP: ${dados.CEP}
+Cidade: ${dados.Cidade}
+Estado: ${dados.Estado}
+
+Contato:
+DDD: ${dados.DDD}
+Telefone: ${dados.Telefone}
+                            `;
+                            document.getElementById('resultadoTelefone').innerText = resultadoFormatado;
+                        } else {
+                            document.getElementById('resultadoTelefone').innerText = 'Nenhum dado encontrado.';
+                        }
+                    } catch (e) {
+                        console.error('Erro ao analisar JSON:', e);
+                        document.getElementById('resultadoTelefone').innerText = 'Erro ao analisar resposta da API.';
+                    }
+                } else {
+                    console.error('Erro na API:', requisicao.statusText);
+                    document.getElementById('resultadoTelefone').innerText = 'Erro na consulta à API.';
+                }
+            };
+
+            requisicao.onerror = function () {
+                console.error('Erro na requisição');
+                document.getElementById('resultadoTelefone').innerText = 'Erro na requisição.';
+            };
+
+            requisicao.send();
+        }
+
+        function consultarTelefone() {
+            const ddd = document.getElementById('dddInput').value;
+            const telefone = document.getElementById('telefoneInput').value;
+            if (!ddd || !telefone) {
+                alert('DDD ou Telefone inválido');
+                return;
+            }
+
+            tentativas++;
+            if (tentativas <= MAX_TENTATIVAS) {
+                const apiUrl = `https://x-search.xyz/apis/x-slayer/02/telefone.php?ddd=${ddd}&telefone=${telefone}`;
+                consultarAPI(apiUrl);
+            } else {
+                document.getElementById('resultadoTelefone').innerText = 'Limite de tentativas excedido. Tente novamente mais tarde.';
+            }
+        }
+
+        function salvarConsulta() {
+            const resultado = document.getElementById('resultadoTelefone').innerText;
+            const blob = new Blob([resultado], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = 'consulta_telefone.txt';
+            link.click();
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta por Nome</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 20px;
+            text-align: center;
+            background-color: #000;
+            color: #ff5252;
+        }
+
+        h1, h2 {
+            color: #ff5252;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        input {
+            padding: 8px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: none;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px;
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: rgb(224, 15, 15);
+        }
+
+        pre {
+            background-color: #222;
+            padding: 10px;
+            border-radius: 5px;
+            overflow: auto;
+            white-space: pre-wrap;
+            margin-top: 20px;
+            text-align: left;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Consulta Nome</h1>
+
+    <label for="nomeInput">Digite o Nome:</label>
+    <input type="text" id="nomeInput" placeholder="Insira o nome aqui">
+    <button onclick="consultarPorNome()">Consultar</button>
+    <button onclick="salvarConsulta()">Salvar</button>
+
+    <h2>Informações: </h2>
+    <pre id="resultado-api"></pre>
+
+    <script>
+        function consultarAPI(url) {
+            const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+
+            const requisicao = new XMLHttpRequest();
+            requisicao.open('GET', proxyUrl + url, true);
+
+            requisicao.onload = function() {
+                if (requisicao.status === 200) {
+                    try {
+                        const respostaApi = JSON.parse(requisicao.responseText);
+                        if (respostaApi && respostaApi.length > 0) {
+                            let resultadoFormatado = '';
+                            respostaApi.forEach(dados => {
+                                if (dados.Nome) {
+                                    resultadoFormatado += `Informações pessoais:\nNome: ${dados.Nome}\n`;
+                                }
+                                if (dados.CPF) {
+                                    resultadoFormatado += `CPF: ${dados.CPF}\n`;
+                                }
+                                if (dados.Data_Nascimento) {
+                                    resultadoFormatado += `Data de Nascimento: ${dados.Data_Nascimento}\n`;
+                                }
+                                if (dados.Sexo) {
+                                    resultadoFormatado += `Sexo: ${dados.Sexo}\n`;
+                                }
+                                resultadoFormatado += '\n--------------------------\n';
+                            });
+                            document.getElementById('resultado-api').innerText = resultadoFormatado;
+                        } else {
+                            document.getElementById('resultado-api').innerText = 'Nenhum dado encontrado.';
+                        }
+                    } catch (e) {
+                        console.error('Erro ao analisar JSON:', e);
+                        document.getElementById('resultado-api').innerText = 'Erro ao analisar resposta da API.';
+                    }
+                } else {
+                    console.error('Erro na API');
+                    document.getElementById('resultado-api').innerText = 'Erro na consulta à API.';
+                }
+            };
+
+            requisicao.onerror = function() {
+                console.error('Erro na requisição');
+                document.getElementById('resultado-api').innerText = 'Erro na requisição.';
+            };
+
+            requisicao.send();
+        }
+
+        function consultarPorNome() {
+            const nome = document.getElementById('nomeInput').value;
+            if (!nome) {
+                alert('Nome inválido');
+                return;
+            }
+
+            const apiUrl = `https://x-search.xyz/apis/x-slayer/03/nome.php?nome=${nome}`;
+            consultarAPI(apiUrl);
+        }
+
+        function salvarConsulta() {
+            const resultado = document.getElementById('resultado-api').innerText;
+            const blob = new Blob([resultado], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = 'consulta_nome.txt';
+            link.click();
+        }
+    </script>
+</body>
+
+</html>
