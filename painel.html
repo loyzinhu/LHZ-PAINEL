@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>LHZ</title>
+    <style>
+        body {
+            background-color: #000;
+            color: #ff5252;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        #container {
+            width: 80%;
+            margin: 0 auto;
+            text-align: center;
+            padding-top: 50px;
+        }
+
+        h1 {
+            font-size: 36px;
+        }
+
+        .botoes-consulta {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        .consulta-btn {
+            background-color: #ff5252;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            margin: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        .consulta-btn:hover {
+            background-color: #cc0000;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+        <h1>LHZ</h1>
+        <h2>dev:Surtr(pedro)</h2>
+        <H3>Maria,Maya e Gusta</H3>
+        <div class="botoes-consulta">
+            <button class="consulta-btn" onclick="openPage('consulta_cpf.html')">Consultar CPF</button>
+            <button class="consulta-btn" onclick="openPage('consulta_nome.html')">Consultar Nome</button>
+            <button class="consulta-btn" onclick="openPage('consulta_telefone.html')">Consultar Telefone</button>
+        </div>
+    </div>
+
+    <script>
+        function openPage(page) {
+            window.open(page);
+        }
+    </script>
+</body>
+
+</html>
