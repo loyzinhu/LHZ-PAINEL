@@ -84,7 +84,7 @@
         const MAX_TENTATIVAS = 3;
 
         function consultarAPI(url) {
-            const proxyUrl = 'https://cors.bridged.cc/';
+            const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
 
             const requisicao = new XMLHttpRequest();
             requisicao.open('GET', proxyUrl + url, true);
